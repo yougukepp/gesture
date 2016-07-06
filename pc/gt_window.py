@@ -11,6 +11,7 @@ from PyQt5.QtCore import pyqtSignal
 from PyQt5.uic import loadUiType, loadUi
 
 from wave_widget import WaveWidget
+from status_bar import StatusBar
 
 g_GTWindowUIClass = loadUiType("gt_window.ui")
 
@@ -22,11 +23,9 @@ class GTWindow(QMainWindow):
         self.mUi = g_GTWindowUIClass[0]()
         self.mUi.setupUi(self)
 
-        # 菜单在ui文件中初始化
-        # 此处指初始化状态栏
-        statusLabel1 = QLabel("状态栏占位标签")
-        self.mStatusBar = self.mUi.statusbar
-        self.mStatusBar.addWidget(statusLabel1) 
+        # 状态栏
+        self.mStatusBar = StatusBar()
+        self.setStatusBar(self.mStatusBar)
 
         # 核心widget wave_widget
         self.mWaveWidget = WaveWidget()
