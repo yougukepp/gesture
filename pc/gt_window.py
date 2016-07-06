@@ -32,7 +32,10 @@ class GTWindow(QMainWindow):
         self.setCentralWidget(self.mWaveWidget)
         
         # 标题
-        self.setWindowTitle("手势控制上位机")
+        self.setWindowTitle("手势控制上位机") 
+        
+        #绑定信号和槽
+        self.mWaveWidget.msMove.connect(self.mStatusBar.Move)
 
 if __name__ == '__main__': 
     app = QApplication(sys.argv)

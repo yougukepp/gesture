@@ -8,22 +8,25 @@ from PyQt5.QtWidgets import *
 from PyQt5.QtGui import *
 
 class WaveWidget(QWidget):
+    #msMove = pyqtSignal(QPoint, name='msMove')
+    msMove = pyqtSignal(['QPoint', 'int'], name = "msMove")
+
     def __init__(self, parent=None):
         super(WaveWidget, self).__init__(parent) 
-
-        # 鼠标跟踪
-        self.setMouseTracking(True)
-        self.setMargin(5)
-
-        # 拖拽起点
-        self.mDragStart = None 
         
+        self.setMouseTracking(True) # 鼠标跟踪
+        self.setCursor(Qt.BlankCursor) # 隐藏鼠标
+        self.mPos = None # 鼠标当前点
+
     def paintEvent(self, paintEvent):
         painter = QPainter(self) 
 
         # 清屏
         painter.fillRect(0, 0, self.width(), self.height(), Qt.black)
+        # 绘制坐标系
         self.drawAxes(painter)
+        # 绘制鼠标位置十字线
+        self.drawMouseCross(painter)
 
         painter.end() 
 
@@ -35,14 +38,6 @@ class WaveWidget(QWidget):
         rightWidth = metrics.width("ms") 
         width = leftWidth * 3
         height = self.height() - textHeight  * 2
-        
-        """
-        # 绘制外框 
-        pen = QPen(Qt.blue)
-        pen.setWidth(10)
-        painter.setPen(pen)
-        painter.drawRect(0, 0, self.width() -1, self.height() - 1)
-        """
 
         # 画坐标系
         pen = QPen(Qt.red)
@@ -83,64 +78,29 @@ class WaveWidget(QWidget):
             text = "%d" % (i+1)
             painter.drawText(x2 - lineLength * 3 , y2 + 10, text)
 
-        """
-        for (int i = 1; i <= 12; ++i) 
-        { 
-            QString month = tr("%1月").arg(i); 
-            int stringWidth = metrics.width(month); 
-            
-            # 绘制坐标刻度 
-            painter.drawLine(deltaX * i, 0, deltaX * i, 4); 
-            # 绘制坐标处的月 
-            int monthX = deltaX * (i - 1) + ((deltaX - stringWidth) / 2); 
-            painter.drawText(monthX, textHeight, month); 
-        } 
-        
-        # 画纵坐标 
-        painter.drawLine(0, 0, 0, -height); 
-        painter.drawText(-metrics.width(tr("(件)")), 
-                        -(deltaY * count + textHeight / 2 + metrics.descent()), 
-                        tr("(件)")); 
-                        
-        for (int i = 1; i <= count; ++i) 
-        { 
-            QString value = QString("%1").arg(i * totalCount / count); 
-            int stringWidth = metrics.width(value); 
-            
-            # 绘制坐标刻度 
-            painter.drawLine(-4, -i * deltaY, 0, -i * deltaY); 
-            # 绘制坐标值 
-            # painter.drawText(-stringWidth - 4, -i * deltaY + stringHeight / 2, value); 
-            painter.drawText(-stringWidth - 4, -(deltaY * i + textHeight / 2 - metrics.ascent()), value); 
-        }
-        """
-
-    def setMargin(self, margin):
-        self.mMargin = margin
-
-    def getMargin(self):
-        return self.mMargin
+    def drawMouseCross(self, painter): 
+        if None != self.mPos:
+            x = self.mPos.x()
+            y = self.mPos.y() 
+            pen = QPen(Qt.gray)
+            pen.setWidth(1)
+            pen.setStyle(Qt.DashLine)
+            painter.setPen(pen)
+            painter.drawLine(x, 0, x, self.height())
+            painter.drawLine(0, y, self.width(), y)
 
     # 交互类函数
     def mousePressEvent(self, mouseEvent):
-        pos = mouseEvent.pos()
-        self.mDragStart = pos
-        print("开始拖拽:(%d,%d)" % (pos.x(), pos.y()))
+        pass
 
     def mouseReleaseEvent (self, mouseEvent):
-        pos = mouseEvent.pos()
-        x = pos.x() - self.mDragStart.x()
-        y = pos.y() - self.mDragStart.y()
+        pass
 
-        if 0 == x and 0 == y:
-            print('没有拖拽')
-            return
-
-        if 0 != x: 
-            print('左右移动:%d' % x) 
-
-        if 0 != y:
-            print('上下移动:%d' % y)
+    def mouseMoveEvent(self, event):
+        p = QPoint(event.pos())
+        self.mPos = p
+        self.msMove.emit(p , self.height())
+        self.update()
 
 if __name__ == '__main__': 
     app = QApplication(sys.argv)
