@@ -89,6 +89,10 @@ class WaveWidget(QWidget):
             painter.drawLine(x, 0, x, self.height())
             painter.drawLine(0, y, self.width(), y)
 
+    def leaveEvent(self, event):
+        self.mPos = None
+        self.update()
+
     # 交互类函数
     def mousePressEvent(self, mouseEvent):
         pass
